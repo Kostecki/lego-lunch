@@ -33,11 +33,7 @@ const postToTeams = (menu) => {
           {
             title: "Vegetarian",
             value: `${menu.veg}`
-          },
-          {
-            title: "Salad",
-            value: `${menu.salad}`,
-          },
+          }
         ],
         separator: true,
       },
@@ -92,7 +88,6 @@ fetch("https://lego.isscatering.dk/kantine-oestergade/en/weekmenu")
 
       const hot = $(el).find(".menu-row:eq(1) .row .description").text();
       const veg = $(el).find(".menu-row:eq(2) .row .description").text();
-      const salad = $(el).find(".menu-row:eq(3) .row .description").text();
 
       if (weekday) {
         weekMenu.push({
@@ -101,7 +96,6 @@ fetch("https://lego.isscatering.dk/kantine-oestergade/en/weekmenu")
           ),
           hot,
           veg,
-          salad,
         });
       }
     });
