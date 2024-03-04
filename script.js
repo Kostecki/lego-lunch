@@ -10,6 +10,8 @@ dayjs.extend(advancedFormat);
 const regex = /(\d{1,2}\.\s\w+)/g;
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
+const menuUrl = "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu";
+
 const postToTeams = (menu) => {
   const cardTemplate = {
     type: "AdaptiveCard",
@@ -32,17 +34,24 @@ const postToTeams = (menu) => {
           },
           {
             title: "Vegetarian",
-            value: `${menu.veg}`
-          }
+            value: `${menu.veg}`,
+          },
         ],
         separator: true,
       },
     ],
     selectAction: {
       type: "Action.OpenUrl",
-      url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
+      url: menuUrl,
     },
   };
+
+  if (menu.salad) {
+    cardTemplate.body[1].facts.push({
+      title: "Salad",
+      value: `${menu.salad}`,
+    });
+  }
 
   fetch(`${process.env.TEAMS_WEBHOOK}`, {
     method: "POST",
@@ -61,8 +70,6 @@ const postToTeams = (menu) => {
     }),
   })
     .then((res) => {
-      console.log(`statusCode: ${res.status}`);
-      
       if (res.status !== 200) {
         console.log(res);
       }
@@ -72,7 +79,7 @@ const postToTeams = (menu) => {
     });
 };
 
-fetch("https://lego.isscatering.dk/kantine-oestergade/en/weekmenu")
+fetch(menuUrl)
   .then((response) => response.text())
   .then((html) => {
     const $ = cheerio.load(html);
@@ -88,6 +95,7 @@ fetch("https://lego.isscatering.dk/kantine-oestergade/en/weekmenu")
 
       const hot = $(el).find(".menu-row:eq(1) .row .description").text();
       const veg = $(el).find(".menu-row:eq(2) .row .description").text();
+      const salad = $(el).find(".menu-row:eq(3) .row .description").text();
 
       if (weekday) {
         weekMenu.push({
@@ -97,6 +105,10 @@ fetch("https://lego.isscatering.dk/kantine-oestergade/en/weekmenu")
           hot,
           veg,
         });
+
+        if (salad) {
+          weekMenu.push(salad);
+        }
       }
     });
 
