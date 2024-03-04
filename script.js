@@ -104,11 +104,8 @@ fetch(menuUrl)
           ),
           hot,
           veg,
+          salad,
         });
-
-        if (salad) {
-          weekMenu.push(salad);
-        }
       }
     });
 
