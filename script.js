@@ -3,14 +3,24 @@ const cheerio = require("cheerio");
 const dayjs = require("dayjs");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 const advancedFormat = require("dayjs/plugin/advancedFormat");
+const weekday = require("dayjs/plugin/weekday");
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
+dayjs.extend(weekday);
 
-const regex = /(\d{1,2}\.\s\w+)/g;
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
 const menuUrl = "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu";
+const daysOfWeek = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 const postToTeams = (menu) => {
   const cardTemplate = {
@@ -71,7 +81,7 @@ const postToTeams = (menu) => {
   })
     .then((res) => {
       if (res.status !== 200) {
-        console.log(res);
+        console.error(res);
       }
     })
     .catch((error) => {
@@ -84,14 +94,11 @@ fetch(menuUrl)
   .then((html) => {
     const $ = cheerio.load(html);
 
-    const week = $(".header-week").text().match(regex);
-    const dayOfWeek = dayjs().day() - 1;
-    const firstDate = dayjs(week[0], "D. MMMM");
-
     const weekMenu = [];
 
-    $(".week-container .day").map((index, el) => {
+    $(".week-container .day").map((_, el) => {
       const weekday = $(el).find(".menu-row:first h2").text();
+      const dayNumberInWeek = daysOfWeek.indexOf(weekday);
 
       const hot = $(el).find(".menu-row:eq(1) .row .description").text();
       const veg = $(el).find(".menu-row:eq(2) .row .description").text();
@@ -100,7 +107,7 @@ fetch(menuUrl)
       if (weekday) {
         weekMenu.push({
           date: capitalize(
-            dayjs(firstDate).add(index, "day").format("dddd Do [of] MMMM YYYY")
+            dayjs().day(dayNumberInWeek).format("dddd Do [of] MMMM YYYY")
           ),
           hot,
           veg,
@@ -109,6 +116,9 @@ fetch(menuUrl)
       }
     });
 
-    postToTeams(weekMenu[dayOfWeek]);
+    const todaysDay = dayjs().format("dddd");
+    const todaysMenu = weekMenu.find((day) => day.date.includes(todaysDay));
+
+    postToTeams(todaysMenu);
   })
-  .catch((error) => console.log(error));
+  .catch((error) => console.error(error));
