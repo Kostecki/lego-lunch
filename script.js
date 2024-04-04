@@ -11,7 +11,6 @@ dayjs.extend(weekday);
 
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
-const menuUrl = "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu";
 const daysOfWeek = [
   "Sunday",
   "Monday",
@@ -22,7 +21,20 @@ const daysOfWeek = [
   "Saturday",
 ];
 
-const postToTeams = (menu) => {
+const locations = [
+  {
+    name: "Kantine Oestergade",
+    url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
+    teams_webhook: process.env.kantine_oestergade,
+  },
+  {
+    name: "Campus Åstvej",
+    url: "https://lego.isscatering.dk/aastvej/en/weekmenu",
+    teams_webhook: process.env.campus_aastvej,
+  },
+];
+
+const postToTeams = (menu, location) => {
   const cardTemplate = {
     type: "AdaptiveCard",
     $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -52,18 +64,16 @@ const postToTeams = (menu) => {
     ],
     selectAction: {
       type: "Action.OpenUrl",
-      url: menuUrl,
+      url: location.url,
     },
   };
-
   if (menu.salad) {
     cardTemplate.body[1].facts.push({
       title: "Salad",
       value: `${menu.salad}`,
     });
   }
-
-  fetch(`${process.env.TEAMS_WEBHOOK}`, {
+  fetch(location.teams_webhook, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -89,36 +99,38 @@ const postToTeams = (menu) => {
     });
 };
 
-fetch(menuUrl)
-  .then((response) => response.text())
-  .then((html) => {
-    const $ = cheerio.load(html);
+locations.forEach((location) => {
+  fetch(location.url)
+    .then((response) => response.text())
+    .then((html) => {
+      const $ = cheerio.load(html);
 
-    const weekMenu = [];
+      const weekMenu = [];
 
-    $(".week-container .day").map((_, el) => {
-      const weekday = $(el).find(".menu-row:first h2").text();
-      const dayNumberInWeek = daysOfWeek.indexOf(weekday);
+      $(".week-container .day").map((_, el) => {
+        const weekday = $(el).find(".menu-row:first h2").text();
+        const dayNumberInWeek = daysOfWeek.indexOf(weekday);
 
-      const hot = $(el).find(".menu-row:eq(1) .row .description").text();
-      const veg = $(el).find(".menu-row:eq(2) .row .description").text();
-      const salad = $(el).find(".menu-row:eq(3) .row .description").text();
+        const hot = $(el).find(".menu-row:eq(1) .row .description").text();
+        const veg = $(el).find(".menu-row:eq(2) .row .description").text();
+        const salad = $(el).find(".menu-row:eq(3) .row .description").text();
 
-      if (weekday) {
-        weekMenu.push({
-          date: capitalize(
-            dayjs().day(dayNumberInWeek).format("dddd Do [of] MMMM YYYY")
-          ),
-          hot,
-          veg,
-          salad,
-        });
-      }
-    });
+        if (weekday) {
+          weekMenu.push({
+            date: capitalize(
+              dayjs().day(dayNumberInWeek).format("dddd Do [of] MMMM YYYY")
+            ),
+            hot,
+            veg,
+            salad,
+          });
+        }
+      });
 
-    const todaysDay = dayjs().format("dddd");
-    const todaysMenu = weekMenu.find((day) => day.date.includes(todaysDay));
+      const todaysDay = dayjs().format("dddd");
+      const todaysMenu = weekMenu.find((day) => day.date.includes(todaysDay));
 
-    postToTeams(todaysMenu);
-  })
-  .catch((error) => console.error(error));
+      postToTeams(todaysMenu, location);
+    })
+    .catch((error) => console.error(error));
+});
