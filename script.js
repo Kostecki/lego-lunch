@@ -5,11 +5,18 @@ const customParseFormat = require("dayjs/plugin/customParseFormat");
 const advancedFormat = require("dayjs/plugin/advancedFormat");
 const weekday = require("dayjs/plugin/weekday");
 
+const createClient = require("@supabase/supabase-js").createClient;
+
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
+
+const supabase = createClient(
+  "https://fytqwdvsuzeaikzhkoij.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dHF3ZHZzdXplYWlremhrb2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI1ODU5NDIsImV4cCI6MjAzODE2MTk0Mn0.tR4s4zeRna_YQJe980FvksqlYA7AFAtvNFHDF2QLBog"
+);
 
 const daysOfWeek = [
   "Sunday",
@@ -34,6 +41,21 @@ const locations = [
   },
 ];
 
+const getFromPhysicalMenu = async (location) => {
+  const today = dayjs().format("YYYY-MM-DD");
+  const { data, error } = await supabase
+    .from("menu")
+    .select()
+    .eq("date", today)
+    .eq("location", location);
+
+  if (error) {
+    console.error(error);
+  } else {
+    return data[0];
+  }
+};
+
 const postToTeams = (menu, location) => {
   const cardTemplate = {
     type: "AdaptiveCard",
@@ -51,12 +73,12 @@ const postToTeams = (menu, location) => {
         type: "FactSet",
         facts: [
           {
-            title: "Hot",
-            value: `${menu.hot}`,
+            title: "Meat",
+            value: `${menu.meat}`,
           },
           {
             title: "Vegetarian",
-            value: `${menu.veg}`,
+            value: `${menu.veggie}`,
           },
         ],
         separator: true,
@@ -102,7 +124,7 @@ const postToTeams = (menu, location) => {
 locations.forEach((location) => {
   fetch(location.url)
     .then((response) => response.text())
-    .then((html) => {
+    .then(async (html) => {
       const $ = cheerio.load(html);
 
       const weekMenu = [];
@@ -111,8 +133,8 @@ locations.forEach((location) => {
         const weekday = $(el).find(".menu-row:first h2").text();
         const dayNumberInWeek = daysOfWeek.indexOf(weekday);
 
-        const hot = $(el).find(".menu-row:eq(1) .row .description").text();
-        const veg = $(el).find(".menu-row:eq(2) .row .description").text();
+        const meat = $(el).find(".menu-row:eq(1) .row .description").text();
+        const veggie = $(el).find(".menu-row:eq(2) .row .description").text();
         const salad = $(el).find(".menu-row:eq(3) .row .description").text();
 
         if (weekday) {
@@ -120,15 +142,34 @@ locations.forEach((location) => {
             date: capitalize(
               dayjs().day(dayNumberInWeek).format("dddd Do [of] MMMM YYYY")
             ),
-            hot,
-            veg,
+            meat,
+            veggie,
             salad,
           });
         }
       });
 
       const todaysDay = dayjs().format("dddd");
-      const todaysMenu = weekMenu.find((day) => day.date.includes(todaysDay));
+      let todaysMenu = weekMenu.find((day) => day.date.includes(todaysDay));
+
+      if (
+        !todaysMenu ||
+        todaysMenu.meat === "Please find the menu in the Canteen"
+      ) {
+        const physicalMenu = await getFromPhysicalMenu(location.name);
+
+        if (physicalMenu) {
+          todaysMenu = {
+            date: dayjs().format("dddd Do [of] MMMM YYYY"),
+            meat: physicalMenu.meat,
+            veggie: physicalMenu.veggie,
+          };
+
+          if (physicalMenu.salad) {
+            todaysMenu.salad = physicalMenu.salad;
+          }
+        }
+      }
 
       postToTeams(todaysMenu, location);
     })
