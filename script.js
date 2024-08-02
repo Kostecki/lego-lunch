@@ -15,7 +15,7 @@ const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
 const supabase = createClient(
   "https://fytqwdvsuzeaikzhkoij.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dHF3ZHZzdXplYWlremhrb2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI1ODU5NDIsImV4cCI6MjAzODE2MTk0Mn0.tR4s4zeRna_YQJe980FvksqlYA7AFAtvNFHDF2QLBog"
+  process.env.SUPABASE_KEY
 );
 
 const daysOfWeek = [
@@ -32,12 +32,12 @@ const locations = [
   {
     name: "Kantine Oestergade",
     url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
-    teams_webhook: process.env.kantine_oestergade,
+    teams_webhook: process.env.KANTINE_OESTERGADE,
   },
   {
     name: "Campus Åstvej",
     url: "https://lego.isscatering.dk/aastvej/en/weekmenu",
-    teams_webhook: process.env.campus_aastvej,
+    teams_webhook: process.env.CAMPUS_AASTVEJ,
   },
 ];
 
@@ -142,6 +142,7 @@ locations.forEach((location) => {
             date: capitalize(
               dayjs().day(dayNumberInWeek).format("dddd Do [of] MMMM YYYY")
             ),
+            location: location.name,
             meat,
             veggie,
             salad,
@@ -161,6 +162,7 @@ locations.forEach((location) => {
         if (physicalMenu) {
           todaysMenu = {
             date: dayjs().format("dddd Do [of] MMMM YYYY"),
+            location: location.name,
             meat: physicalMenu.meat,
             veggie: physicalMenu.veggie,
           };
