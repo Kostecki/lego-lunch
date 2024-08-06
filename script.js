@@ -39,6 +39,11 @@ const locations = [
     url: "https://lego.isscatering.dk/aastvej/en/weekmenu",
     teams_webhook: process.env.CAMPUS_AASTVEJ,
   },
+  {
+    name: "Midtown",
+    url: "https://lego.isscatering.dk/midtown/en/weekmenu",
+    teams_webhook: process.env.MIDTOWN,
+  },
 ];
 
 const getFromPhysicalMenu = async (location) => {
@@ -50,7 +55,8 @@ const getFromPhysicalMenu = async (location) => {
     .eq("location", location);
 
   if (error) {
-    console.error(error);
+    console.error("getFromPhysicalMenu", error);
+    return false;
   } else {
     return data[0];
   }
@@ -95,29 +101,33 @@ const postToTeams = (menu, location) => {
       value: `${menu.salad}`,
     });
   }
+
+  const payload = {
+    type: "message",
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        contentUrl: null,
+        content: cardTemplate,
+      },
+    ],
+  };
+
   fetch(location.teams_webhook, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      type: "message",
-      attachments: [
-        {
-          contentType: "application/vnd.microsoft.card.adaptive",
-          contentUrl: null,
-          content: cardTemplate,
-        },
-      ],
-    }),
+    body: JSON.stringify(payload),
   })
-    .then((res) => {
-      if (res.status !== 200) {
-        console.error(res);
+    .then((response) => response.json())
+    .then((response) => {
+      if (response.status !== 200) {
+        console.error("postToTeams, !200", response.error.message);
       }
     })
     .catch((error) => {
-      console.error(error);
+      console.error("postToTeams, error", error);
     });
 };
 
@@ -175,5 +185,5 @@ locations.forEach((location) => {
 
       postToTeams(todaysMenu, location);
     })
-    .catch((error) => console.error(error));
+    .catch((error) => console.error("forEach", error));
 });
