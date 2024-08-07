@@ -66,7 +66,7 @@ const postToTeams = (menu, location) => {
   const cardTemplate = {
     type: "AdaptiveCard",
     $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-    version: "1.5",
+    version: "1.4", // Downgrade to 1.4 is required to make it work.
     body: [
       {
         type: "TextBlock",
