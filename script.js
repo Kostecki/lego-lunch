@@ -13,6 +13,8 @@ dayjs.extend(weekday);
 
 const capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
+const TESTING = false;
+
 const supabase = createClient(
   "https://fytqwdvsuzeaikzhkoij.supabase.co",
   process.env.SUPABASE_KEY
@@ -28,7 +30,13 @@ const daysOfWeek = [
   "Saturday",
 ];
 
-const locations = [
+const testLocation = {
+  name: "Test",
+  url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
+  teams_webhook: process.env.TEST,
+};
+
+let locations = [
   {
     name: "Kantine Oestergade",
     url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
@@ -46,6 +54,10 @@ const locations = [
   },
 ];
 
+if (TESTING) {
+  locations = [testLocation];
+}
+
 const getFromPhysicalMenu = async (location) => {
   const today = dayjs().format("YYYY-MM-DD");
   const { data, error } = await supabase
@@ -55,14 +67,14 @@ const getFromPhysicalMenu = async (location) => {
     .eq("location", location);
 
   if (error) {
-    console.error("getFromPhysicalMenu", error);
+    console.error("getFromPhysicalMenu,", error);
     return false;
   } else {
     return data[0];
   }
 };
 
-const postToTeams = (menu, location) => {
+const postToTeams = async (menu, location) => {
   const cardTemplate = {
     type: "AdaptiveCard",
     $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -113,22 +125,24 @@ const postToTeams = (menu, location) => {
     ],
   };
 
-  fetch(location.teams_webhook, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((response) => response.json())
-    .then((response) => {
-      if (response.status !== 200) {
-        console.error("postToTeams, !200", response.error.message);
-      }
-    })
-    .catch((error) => {
-      console.error("postToTeams, error", error);
+  try {
+    const response = await fetch(location.teams_webhook, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
+
+    if (!response.ok) {
+      console.error(
+        "postToTeams, !ok,",
+        `${response.status}: ${response.statusText}`
+      );
+    }
+  } catch (error) {
+    console.error("postToTeams, error,", error);
+  }
 };
 
 locations.forEach((location) => {
@@ -183,7 +197,7 @@ locations.forEach((location) => {
         }
       }
 
-      postToTeams(todaysMenu, location);
+      await postToTeams(todaysMenu, location);
     })
-    .catch((error) => console.error("forEach", error));
+    .catch((error) => console.error("forEach,", error));
 });
