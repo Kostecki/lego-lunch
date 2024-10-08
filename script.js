@@ -52,6 +52,11 @@ let locations = [
     url: "https://lego.isscatering.dk/midtown/en/weekmenu",
     channel_id: process.env.MIDTOWN_CHANNEL_ID,
   },
+  {
+    name: "Kantine Løvstræde",
+    url: "https://lego.isscatering.dk/lego-lovstraede/en/weekmenu",
+    channel_id: process.env.KANTINE_LOVSTRAEDE_ID,
+  },
 ];
 
 if (TESTING) {
