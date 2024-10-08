@@ -33,24 +33,24 @@ const daysOfWeek = [
 const testLocation = {
   name: "Test",
   url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
-  teams_webhook: process.env.TEST,
+  channel_id: process.env.TEST_CHANNEL_ID,
 };
 
 let locations = [
   {
     name: "Kantine Oestergade",
     url: "https://lego.isscatering.dk/kantine-oestergade/en/weekmenu",
-    teams_webhook: process.env.KANTINE_OESTERGADE,
+    channel_id: process.env.KANTINE_OESTERGADE_CHANNEL_ID,
   },
   {
     name: "Campus Åstvej",
     url: "https://lego.isscatering.dk/aastvej/en/weekmenu",
-    teams_webhook: process.env.CAMPUS_AASTVEJ,
+    channel_id: process.env.CAMPUS_AASTVEJ_CHANNEL_ID,
   },
   {
     name: "Midtown",
     url: "https://lego.isscatering.dk/midtown/en/weekmenu",
-    teams_webhook: process.env.MIDTOWN,
+    channel_id: process.env.MIDTOWN_CHANNEL_ID,
   },
 ];
 
@@ -121,12 +121,13 @@ const postToTeams = async (menu, location) => {
         contentType: "application/vnd.microsoft.card.adaptive",
         contentUrl: null,
         content: cardTemplate,
+        channel_id: location.channel_id,
       },
     ],
   };
 
   try {
-    const response = await fetch(location.teams_webhook, {
+    const response = await fetch(process.env.WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
