@@ -128,6 +128,7 @@ const postToTeams = async (menu, location) => {
         content: cardTemplate,
         channel_id: location.channel_id,
         test: TESTING,
+        location: location.name,
       },
     ],
   };
