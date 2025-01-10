@@ -1,55 +1,81 @@
-require("dotenv").config();
-const dayjs = require("dayjs");
-const advancedFormat = require("dayjs/plugin/advancedFormat");
-const weekday = require("dayjs/plugin/weekday");
-const weekOfYear = require("dayjs/plugin/weekOfYear");
+import "dotenv/config";
+import invariant from "tiny-invariant";
+
+import dayjs from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat.js";
+import weekday from "dayjs/plugin/weekday.js";
+import weekOfYear from "dayjs/plugin/weekOfYear.js";
+
+import type { Location, Today } from "./types";
 
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-const TESTING = false;
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
+const OESTERGADE_CHANNEL_ID = process.env.OESTERGADE_CHANNEL_ID;
+const CAMPUS_CHANNEL_ID = process.env.CAMPUS_CHANNEL_ID;
+const MIDTOWN_CHANNEL_ID = process.env.MIDTOWN_CHANNEL_ID;
+const LOVSTRAEDE_ID = process.env.LOVSTRAEDE_ID;
+const TEST_CHANNEL_ID = process.env.TEST_CHANNEL_ID;
 
-let locations = [
+invariant(WEBHOOK_URL, "WEBHOOK_URL is required");
+invariant(OESTERGADE_CHANNEL_ID, "OESTERGADE_CHANNEL_ID is required");
+invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
+invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
+invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
+
+const TESTING = true;
+if (TESTING) {
+  invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
+}
+
+let locations: Location[] = [
   {
     name: "Kantine Oestergade",
     restaurantId: 1242,
     otherId: 675510,
-    channelId: process.env.KANTINE_OESTERGADE_CHANNEL_ID,
+    channelId: OESTERGADE_CHANNEL_ID,
   },
   {
     name: "Campus Åstvej",
     restaurantId: 1235,
     otherId: 674210,
-    channelId: process.env.CAMPUS_AASTVEJ_CHANNEL_ID,
+    channelId: CAMPUS_CHANNEL_ID,
   },
   {
     name: "Midtown",
     restaurantId: 1241,
     otherId: 675110,
-    channelId: process.env.MIDTOWN_CHANNEL_ID,
+    channelId: MIDTOWN_CHANNEL_ID,
   },
   {
     name: "Kantine Løvstræde",
     restaurantId: 1243,
     otherId: 675610,
-    channelId: process.env.KANTINE_LOVSTRAEDE_ID,
+    channelId: LOVSTRAEDE_ID,
   },
 ];
 
-if (TESTING) {
+if (TESTING && TEST_CHANNEL_ID) {
   const { name, restaurantId, otherId } = locations[1];
-  const testLocation = {
+  const testLocation: Location = {
     name: `Test (${name})`,
     restaurantId,
     otherId,
-    channelId: process.env.TEST_CHANNEL_ID,
+    channelId: TEST_CHANNEL_ID,
   };
 
   locations = [testLocation];
 }
 
-const postToTeams = async ({ location, today }) => {
+const postToTeams = async ({
+  location,
+  today,
+}: {
+  location: Location;
+  today: Today;
+}) => {
   const cardTemplate = {
     type: "AdaptiveCard",
     $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -92,7 +118,7 @@ const postToTeams = async ({ location, today }) => {
   };
 
   try {
-    const response = await fetch(process.env.WEBHOOK_URL, {
+    const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +144,7 @@ const main = () => {
 
   locations.forEach((location) => {
     const params = new URLSearchParams({
-      restaurantId: location.restaurantId,
+      restaurantId: String(location.restaurantId),
       languageCode: "en-GB",
       date,
     });
