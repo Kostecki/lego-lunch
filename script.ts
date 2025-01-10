@@ -7,6 +7,7 @@ import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
 
 import type { Location, Today } from "./types";
+import getLocations from "./config";
 
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
@@ -25,37 +26,18 @@ invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
 invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
 invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
 
-const TESTING = true;
+const TESTING = false;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
 
-let locations: Location[] = [
-  {
-    name: "Kantine Oestergade",
-    restaurantId: 1242,
-    otherId: 675510,
-    channelId: OESTERGADE_CHANNEL_ID,
-  },
-  {
-    name: "Campus Åstvej",
-    restaurantId: 1235,
-    otherId: 674210,
-    channelId: CAMPUS_CHANNEL_ID,
-  },
-  {
-    name: "Midtown",
-    restaurantId: 1241,
-    otherId: 675110,
-    channelId: MIDTOWN_CHANNEL_ID,
-  },
-  {
-    name: "Kantine Løvstræde",
-    restaurantId: 1243,
-    otherId: 675610,
-    channelId: LOVSTRAEDE_ID,
-  },
-];
+const channelsIds = {
+  OESTERGADE_CHANNEL_ID,
+  CAMPUS_CHANNEL_ID,
+  MIDTOWN_CHANNEL_ID,
+  LOVSTRAEDE_ID,
+};
+let locations = getLocations(channelsIds);
 
 if (TESTING && TEST_CHANNEL_ID) {
   const { name, restaurantId, otherId } = locations[1];
