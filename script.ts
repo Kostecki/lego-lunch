@@ -5,10 +5,12 @@ import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat.js";
 import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
+import "dayjs/locale/da";
 
 import type { Location, Today } from "./types";
 import getLocations from "./config";
 
+dayjs.locale("da");
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
@@ -121,8 +123,13 @@ const postToTeams = async ({
 
 const main = () => {
   const date = dayjs().format("YYYY-MM-DD");
-  const dayInWeekIndex = dayjs().weekday() - 1;
+  const dayInWeekIndex = dayjs().weekday();
   const weekNumber = dayjs().week();
+
+  // Skip weekends
+  if (dayInWeekIndex > 4) {
+    return;
+  }
 
   locations.forEach((location) => {
     const params = new URLSearchParams({
@@ -145,7 +152,7 @@ const main = () => {
 
         if (weekNumber !== weekNumberFromMenu) {
           console.error(
-            `Week number mismatch for locaion "${location.name}". Is ${weekNumberFromMenu}, but should be ${weekNumber}`
+            `Week number mismatch for location "${location.name}". Is ${weekNumberFromMenu}, but should be ${weekNumber}`
           );
           return;
         }
