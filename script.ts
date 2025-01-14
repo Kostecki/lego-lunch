@@ -5,10 +5,10 @@ import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat.js";
 import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
-import "dayjs/locale/da";
+import "dayjs/locale/da.js";
 
 import type { Location, Today } from "./types";
-import getLocations from "./config";
+import getLocations from "./config.ts";
 
 dayjs.locale("da");
 dayjs.extend(advancedFormat);
