@@ -10,7 +10,6 @@ import "dayjs/locale/da.js";
 import type { Location, Today } from "./types";
 import getLocations from "./config.ts";
 
-dayjs.locale("da");
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
@@ -28,7 +27,7 @@ invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
 invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
 invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
 
-const TESTING = false;
+const TESTING = true;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
@@ -62,29 +61,35 @@ const postToTeams = async ({
 }) => {
   const cardTemplate = {
     type: "AdaptiveCard",
-    $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-    version: "1.4", // Downgrading to 1.4 is required to make it work with teams: https://github.com/microsoft/AdaptiveCards/issues/7676
+    $schema: "https://adaptivecards.io/schemas/adaptive-card.json",
+    version: "1.5",
     body: [
       {
-        type: "TextBlock",
-        text: dayjs(today.date).format("dddd Do [of] MMMM YYYY"),
-        wrap: true,
-        style: "heading",
-        weight: "Bolder",
-      },
-      {
-        type: "FactSet",
-        facts: today.menus.map((menu) => ({
-          title: menu.type,
-          value: menu.menu,
-        })),
-        separator: true,
+        type: "Container",
+        items: [
+          {
+            type: "TextBlock",
+            text: dayjs(today.date).format("dddd, Do [of] MMMM YYYY"),
+            wrap: true,
+            style: "heading",
+            weight: "Bolder",
+          },
+          {
+            type: "FactSet",
+            facts: today.menus.map((menu) => ({
+              title: menu.type,
+              value: menu.menu,
+            })),
+            separator: true,
+          },
+        ],
+        selectAction: {
+          type: "Action.OpenUrl",
+          title: "Go to menu",
+          url: `https://shop.foodandco.dk/${location.otherId}/weeklymenulist-en`,
+        },
       },
     ],
-    selectAction: {
-      type: "Action.OpenUrl",
-      url: `https://shop.foodandco.dk/${location.otherId}/weeklymenulist-en`,
-    },
   };
 
   const payload = {
@@ -92,7 +97,6 @@ const postToTeams = async ({
     attachments: [
       {
         contentType: "application/vnd.microsoft.card.adaptive",
-        contentUrl: null,
         content: cardTemplate,
         channel_id: location.channelId,
         test: TESTING,
@@ -123,7 +127,7 @@ const postToTeams = async ({
 
 const main = () => {
   const date = dayjs().format("YYYY-MM-DD");
-  const dayInWeekIndex = dayjs().weekday();
+  const dayInWeekIndex = dayjs().locale("da").weekday();
   const weekNumber = dayjs().week();
 
   // Skip weekends
