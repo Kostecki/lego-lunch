@@ -27,7 +27,7 @@ invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
 invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
 invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
 
-const TESTING = true;
+const TESTING = false;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
