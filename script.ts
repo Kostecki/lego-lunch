@@ -76,10 +76,12 @@ const postToTeams = async ({
           },
           {
             type: "FactSet",
-            facts: today.menus.map((menu) => ({
-              title: menu.type,
-              value: menu.menu,
-            })),
+            facts: today.menus
+              .filter((menu) => menu.type !== null && menu.menu !== null)
+              .map((menu) => ({
+                title: menu.type,
+                value: menu.menu,
+              })),
             separator: true,
           },
         ],
