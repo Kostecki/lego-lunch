@@ -24,7 +24,7 @@ const WEBHOOK_URL = getWebhookUrl();
 const TEST_CHANNEL_ID = getTestChannelId();
 const CHANNEL_IDS = getChannelIds();
 
-const TESTING = true;
+const TESTING = false;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
