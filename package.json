@@ -1,5 +1,8 @@
 {
   "type": "module",
+  "scripts": {
+    "compile": "bun build --compile --minify --sourcemap --target=bun-linux-x64-modern script.ts --outfile dist/lunch"
+  },
   "dependencies": {
     "dayjs": "^1.11.10",
     "dotenv": "^16.4.7",

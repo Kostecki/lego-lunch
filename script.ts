@@ -27,7 +27,7 @@ invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
 invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
 invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
 
-const TESTING = false;
+const TESTING = true;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
@@ -59,6 +59,11 @@ const postToTeams = async ({
   location: Location;
   today: Today;
 }) => {
+  let date = dayjs(today.date).format("dddd, Do [of] MMMM YYYY");
+  if (TESTING) {
+    date = `${date} (${location.name})`;
+  }
+
   const cardTemplate = {
     type: "AdaptiveCard",
     $schema: "https://adaptivecards.io/schemas/adaptive-card.json",
@@ -69,7 +74,7 @@ const postToTeams = async ({
         items: [
           {
             type: "TextBlock",
-            text: dayjs(today.date).format("dddd, Do [of] MMMM YYYY"),
+            text: date,
             wrap: true,
             style: "heading",
             weight: "Bolder",
