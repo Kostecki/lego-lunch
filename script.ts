@@ -7,43 +7,34 @@ import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
 import "dayjs/locale/da.js";
 
+import {
+  getWebhookUrl,
+  getChannelIds,
+  getLocations,
+  getTestChannelId,
+} from "./config.ts";
+
 import type { Location, Today } from "./types";
-import getLocations from "./config.ts";
 
 dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-const WEBHOOK_URL = process.env.WEBHOOK_URL;
-const OESTERGADE_CHANNEL_ID = process.env.OESTERGADE_CHANNEL_ID;
-const CAMPUS_CHANNEL_ID = process.env.CAMPUS_CHANNEL_ID;
-const MIDTOWN_CHANNEL_ID = process.env.MIDTOWN_CHANNEL_ID;
-const LOVSTRAEDE_ID = process.env.LOVSTRAEDE_ID;
-const TEST_CHANNEL_ID = process.env.TEST_CHANNEL_ID;
-
-invariant(WEBHOOK_URL, "WEBHOOK_URL is required");
-invariant(OESTERGADE_CHANNEL_ID, "OESTERGADE_CHANNEL_ID is required");
-invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
-invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
-invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
+const WEBHOOK_URL = getWebhookUrl();
+const TEST_CHANNEL_ID = getTestChannelId();
+const CHANNEL_IDS = getChannelIds();
 
 const TESTING = true;
 if (TESTING) {
   invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
 }
 
-const channelsIds = {
-  OESTERGADE_CHANNEL_ID,
-  CAMPUS_CHANNEL_ID,
-  MIDTOWN_CHANNEL_ID,
-  LOVSTRAEDE_ID,
-};
-let locations = getLocations(channelsIds);
+let locations = getLocations(CHANNEL_IDS);
 
 if (TESTING && TEST_CHANNEL_ID) {
   const { name, restaurantId, otherId } = locations[1];
   const testLocation: Location = {
-    name: `Test (${name})`,
+    name: `${name} (TEST)`,
     restaurantId,
     otherId,
     channelId: TEST_CHANNEL_ID,
