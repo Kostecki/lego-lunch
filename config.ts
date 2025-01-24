@@ -2,12 +2,12 @@ import invariant from "tiny-invariant";
 
 import type { Location } from "./types";
 
-const WEBHOOK_URL = Bun.env.WEBHOOK_URL;
-const OESTERGADE_CHANNEL_ID = Bun.env.OESTERGADE_CHANNEL_ID;
-const CAMPUS_CHANNEL_ID = Bun.env.CAMPUS_CHANNEL_ID;
-const MIDTOWN_CHANNEL_ID = Bun.env.MIDTOWN_CHANNEL_ID;
-const LOVSTRAEDE_ID = Bun.env.LOVSTRAEDE_ID;
-const TEST_CHANNEL_ID = Bun.env.TEST_CHANNEL_ID;
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
+const OESTERGADE_CHANNEL_ID = process.env.OESTERGADE_CHANNEL_ID;
+const CAMPUS_CHANNEL_ID = process.env.CAMPUS_CHANNEL_ID;
+const MIDTOWN_CHANNEL_ID = process.env.MIDTOWN_CHANNEL_ID;
+const LOVSTRAEDE_ID = process.env.LOVSTRAEDE_ID;
+const TEST_CHANNEL_ID = process.env.TEST_CHANNEL_ID;
 invariant(WEBHOOK_URL, "WEBHOOK_URL is required");
 invariant(OESTERGADE_CHANNEL_ID, "OESTERGADE_CHANNEL_ID is required");
 invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
