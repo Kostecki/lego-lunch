@@ -32,7 +32,7 @@ if (TESTING) {
 let locations = getLocations(CHANNEL_IDS);
 
 if (TESTING && TEST_CHANNEL_ID) {
-  const { name, restaurantId, otherId } = locations[1];
+  const { name, restaurantId, otherId } = locations[0];
   const testLocation: Location = {
     name: `${name} (TEST)`,
     restaurantId,
