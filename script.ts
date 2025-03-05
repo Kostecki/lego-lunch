@@ -165,6 +165,19 @@ const main = () => {
         };
 
         await postToTeams(payload);
+      })
+      .catch((error) => {
+        fetch("https://ntfy.israndom.win", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic: "Random",
+            title: `Error fetching data for location "${location.name}"`,
+            message: error,
+          }),
+        });
       });
   });
 };
