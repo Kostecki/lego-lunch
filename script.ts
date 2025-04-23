@@ -145,7 +145,10 @@ const main = () => {
       .then((response) => response.json())
       .then(async (data) => {
         const weekNumberFromMenu = data.weekNumber;
-        const today = data.days[dayInWeekIndex];
+        const today = data.days.find((menu) => {
+          const menuDate = menu.date.split("T")[0];
+          return menuDate === date;
+        });
 
         if (!today) {
           console.error(`No data for location "${location.name}" on "${date}"`);
