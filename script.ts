@@ -1,17 +1,17 @@
 import "dotenv/config";
-import invariant from "tiny-invariant";
 
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat.js";
 import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
+import invariant from "tiny-invariant";
 import "dayjs/locale/da.js";
 
 import {
-  getWebhookUrl,
   getChannelIds,
   getLocations,
   getTestChannelId,
+  getWebhookUrl,
 } from "./config.ts";
 
 import type { Location, Today } from "./types";
@@ -104,6 +104,7 @@ const postToTeams = async ({
   };
 
   try {
+    console.log(`Publishing for location "${location.name}"`);
     const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: {
@@ -145,7 +146,7 @@ const main = () => {
       .then((response) => response.json())
       .then(async (data) => {
         const weekNumberFromMenu = data.weekNumber;
-        const today = data.days.find((menu) => {
+        const today = data.days.find((menu: Today) => {
           const menuDate = menu.date.split("T")[0];
           return menuDate === date;
         });
