@@ -2,18 +2,21 @@ import invariant from "tiny-invariant";
 
 import type { Location } from "./types";
 
+const GOTIFY_TOKEN = process.env.GOTIFY_TOKEN;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const CAMPUS_CHANNEL_ID = process.env.CAMPUS_CHANNEL_ID;
 const MIDTOWN_CHANNEL_ID = process.env.MIDTOWN_CHANNEL_ID;
 const OESTERGADE_CHANNEL_ID = process.env.OESTERGADE_CHANNEL_ID;
 const LOVSTRAEDE_ID = process.env.LOVSTRAEDE_ID;
 const TEST_CHANNEL_ID = process.env.TEST_CHANNEL_ID;
+invariant(GOTIFY_TOKEN, "GOTIFY_TOKEN is required");
 invariant(WEBHOOK_URL, "WEBHOOK_URL is required");
 invariant(CAMPUS_CHANNEL_ID, "CAMPUS_CHANNEL_ID is required");
 invariant(MIDTOWN_CHANNEL_ID, "MIDTOWN_CHANNEL_ID is required");
 invariant(OESTERGADE_CHANNEL_ID, "OESTERGADE_CHANNEL_ID is required");
 invariant(LOVSTRAEDE_ID, "LOVSTRAEDE_ID is required");
 
+const getGotifyToken = () => GOTIFY_TOKEN;
 const getWebhookUrl = () => WEBHOOK_URL;
 const getTestChannelId = () => TEST_CHANNEL_ID;
 const getChannelIds = () => ({
@@ -50,4 +53,10 @@ const getLocations = (channelIds: Record<string, string>): Location[] => [
   },
 ];
 
-export { getWebhookUrl, getTestChannelId, getChannelIds, getLocations };
+export {
+  getGotifyToken,
+  getWebhookUrl,
+  getTestChannelId,
+  getChannelIds,
+  getLocations,
+};

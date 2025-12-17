@@ -9,6 +9,7 @@ import "dayjs/locale/da.js";
 
 import {
   getChannelIds,
+  getGotifyToken,
   getLocations,
   getTestChannelId,
   getWebhookUrl,
@@ -20,6 +21,7 @@ dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
+const GOTIFY_TOKEN = getGotifyToken();
 const WEBHOOK_URL = getWebhookUrl();
 const TEST_CHANNEL_ID = getTestChannelId();
 const CHANNEL_IDS = getChannelIds();
@@ -171,7 +173,7 @@ const main = () => {
         await postToTeams(payload);
       })
       .catch((error) => {
-        fetch("https://ntfy.israndom.win", {
+        fetch(`https://gotify.israndom.win/message?token=${GOTIFY_TOKEN}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
