@@ -9,8 +9,9 @@ import "dayjs/locale/da.js";
 
 import {
   getChannelIds,
-  getGotifyToken,
   getLocations,
+  getPushOverAppToken,
+  getPushOverUserKey,
   getTestChannelId,
   getWebhookUrl,
 } from "./config.ts";
@@ -21,7 +22,8 @@ dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-const GOTIFY_TOKEN = getGotifyToken();
+const PUSHOVER_USER_KEY = getPushOverUserKey();
+const PUSHOVER_APP_TOKEN = getPushOverAppToken();
 const WEBHOOK_URL = getWebhookUrl();
 const TEST_CHANNEL_ID = getTestChannelId();
 const CHANNEL_IDS = getChannelIds();
@@ -173,15 +175,13 @@ const main = () => {
         await postToTeams(payload);
       })
       .catch((error) => {
-        fetch(`https://gotify.israndom.win/message?token=${GOTIFY_TOKEN}`, {
+        fetch("https://api.pushover.net/1/messages.json", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            topic: "Random",
-            title: `Error fetching data for location "${location.name}"`,
-            message: error,
+          body: new URLSearchParams({
+            token: PUSHOVER_APP_TOKEN,
+            user: PUSHOVER_USER_KEY,
+            title: `LEGO Lunch: Error fetching data for location "${location.name}"`,
+            message: String(error),
           }),
         });
       });
