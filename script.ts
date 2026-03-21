@@ -1,19 +1,16 @@
-import "dotenv/config";
-
 import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat.js";
 import weekday from "dayjs/plugin/weekday.js";
 import weekOfYear from "dayjs/plugin/weekOfYear.js";
-import invariant from "tiny-invariant";
 import "dayjs/locale/da.js";
 
 import {
-  getChannelIds,
+  CHANNEL_IDS,
   getLocations,
-  getPushOverAppToken,
-  getPushOverUserKey,
-  getTestChannelId,
-  getWebhookUrl,
+  PUSHOVER_APP_TOKEN,
+  PUSHOVER_USER_KEY,
+  TEST_CHANNEL_ID,
+  WEBHOOK_URL,
 } from "./config.ts";
 
 import type { Location, Today } from "./types";
@@ -22,15 +19,11 @@ dayjs.extend(advancedFormat);
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-const PUSHOVER_USER_KEY = getPushOverUserKey();
-const PUSHOVER_APP_TOKEN = getPushOverAppToken();
-const WEBHOOK_URL = getWebhookUrl();
-const TEST_CHANNEL_ID = getTestChannelId();
-const CHANNEL_IDS = getChannelIds();
-
 const TESTING = false;
 if (TESTING) {
-  invariant(TEST_CHANNEL_ID, "TEST_CHANNEL_ID is required");
+  if (!TEST_CHANNEL_ID) {
+    throw new Error("TEST_CHANNEL_ID is required");
+  }
 }
 
 let locations = getLocations(CHANNEL_IDS);
@@ -120,7 +113,7 @@ const postToTeams = async ({
     if (!response.ok) {
       console.error(
         "postToTeams, !ok,",
-        `${response.status}: ${response.statusText}`
+        `${response.status}: ${response.statusText}`,
       );
     }
   } catch (error) {
@@ -162,7 +155,7 @@ const main = () => {
 
         if (weekNumber !== weekNumberFromMenu) {
           console.error(
-            `Week number mismatch for location "${location.name}". Is ${weekNumberFromMenu}, but should be ${weekNumber}`
+            `Week number mismatch for location "${location.name}". Is ${weekNumberFromMenu}, but should be ${weekNumber}`,
           );
           return;
         }
