@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       dayjs:
-        specifier: ^1.11.10
+        specifier: 1.11.23
         version: 1.11.23
     devDependencies:
       '@types/node':
-        specifier: ^26.0.0
+        specifier: 26.4.0
         version: 26.4.0
 
 packages:
